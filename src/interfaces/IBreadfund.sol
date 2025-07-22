@@ -296,4 +296,9 @@ interface IBreadfund {
   /// @param token ERC20 token address
   /// @return allowed True if the token is allowed, false otherwise
   function isTokenAllowed(address token) external view returns (bool);
+
+  /// @notice Checks if a breadfund can be decommissioned
+  /// @param id Breadfund ID
+  /// @return decommissionable True if the breadfund can be decommissioned, false otherwise
+  function isDecommissionable(uint256 id) external view returns (bool);
 }

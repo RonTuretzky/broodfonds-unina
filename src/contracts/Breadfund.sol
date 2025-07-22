@@ -130,12 +130,10 @@ contract Breadfund is IBreadfund, ReentrancyGuard, OwnableUpgradeable {
 
   /// @inheritdoc IBreadfund
   function decommission(uint256 _id) external override nonReentrant {
+    if (!this.isDecommissionable(_id)) revert NotDecommissionable();
+
     Breadfund memory _breadfund = breadfunds[_id];
     uint256 _breadfundMembersLength = _breadfund.members.length;
-
-    for (uint256 i = 0; i < _breadfundMembersLength; i++) {
-      if (!hasMadeFirstDeposit[_id][_breadfund.members[i]]) revert NotDecommissionable();
-    }
 
     uint256 _balance = breadfundBalance[_id];
 
@@ -248,6 +246,22 @@ contract Breadfund is IBreadfund, ReentrancyGuard, OwnableUpgradeable {
 
   function isTokenAllowed(address _token) external view override returns (bool) {
     return allowedTokens[_token];
+  }
+
+  /// @inheritdoc IBreadfund
+  function isDecommissionable(uint256 _id) external view override returns (bool) {
+    Breadfund memory _breadfund = breadfunds[_id];
+
+    // Check if breadfund exists
+    if (_breadfund.owner == address(0)) return false;
+
+    // Check if all members have made their first deposit
+    uint256 _breadfundMembersLength = _breadfund.members.length;
+    for (uint256 i = 0; i < _breadfundMembersLength; i++) {
+      if (!hasMadeFirstDeposit[_id][_breadfund.members[i]]) return false;
+    }
+
+    return true;
   }
 
   /// @inheritdoc IBreadfund
